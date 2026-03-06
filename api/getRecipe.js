@@ -1,17 +1,13 @@
-import cors from "cors";
-import dotenv from "dotenv";
-import express from "express";
 import OpenAI from "openai";
 
-dotenv.config();
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-app.post("/api/getRecipe", async (req, res) => {
   try {
-    const { ingredients } = req.body;
+    const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body ?? {};
+    const { ingredients } = body;
     const groqApiKey = process.env.GROQ_API_KEY;
 
     if (!Array.isArray(ingredients) || ingredients.length === 0) {
@@ -42,15 +38,10 @@ Return a clear markdown response with:
 
     const recipeText = completion.choices?.[0]?.message?.content?.trim() ?? "";
     return res.status(200).json({ recipe: recipeText });
-  } catch (err) {
-    const status = Number.isInteger(err?.status) ? err.status : 500;
+  } catch (error) {
+    const status = Number.isInteger(error?.status) ? error.status : 500;
     const message =
-      err?.error?.message || err?.message || String(err) || "Something went wrong";
+      error?.error?.message || error?.message || String(error) || "Something went wrong";
     return res.status(status).json({ error: message });
   }
-});
-
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+}

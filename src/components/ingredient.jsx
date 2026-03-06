@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export default function Indegredient({ ingredients, setRecipe, setShowRecipe }) {
+export default function Ingredient({ ingredients, setRecipe, setShowRecipe }) {
   const [loading, setLoading] = useState(false);
 
   async function handleGenerate() {
